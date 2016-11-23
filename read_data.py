@@ -5,5 +5,9 @@ def read_data(filename):
     return text
 
 
+def read_labels(filename):
+    text = open(filename).read().splitlines()
+    return text
+
 if __name__ == "__main__":
-    print read_data("trainingSet.dat")
+    print read_labels("trainingSetLabels.dat")  # testing
