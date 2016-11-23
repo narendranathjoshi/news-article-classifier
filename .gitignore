@@ -89,3 +89,4 @@ ENV/
 .ropeproject
 *.dat
 *.gz
+.idea
