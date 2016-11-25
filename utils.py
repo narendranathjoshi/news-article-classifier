@@ -3,17 +3,17 @@ import re
 from stop_words import get_stop_words
 from nltk.stem import PorterStemmer
 
+# Get stopwords for English
+en_stop = get_stop_words('en')
+
 
 def count_syllables(word):
     """
-    Counts the number of syllables in a given word
+    Count the number of syllables in a given word
     :param word:
     :return:
     """
     word = word.lower()
-
-    # exception_add are words that need extra syllables
-    # exception_del are words that need less syllables
 
     exception_add = ['serious', 'crucial']
     exception_del = ['fortunately', 'unfortunately']
@@ -27,13 +27,9 @@ def count_syllables(word):
     syls = 0  # added syllable number
     disc = 0  # discarded syllable number
 
-    # 1) if letters < 3 : return 1
     if len(word) <= 3:
         syls = 1
         return syls
-
-    # 2) if doesn't end with "ted" or "tes" or "ses" or "ied" or "ies", discard "es" and "ed" at the end.
-    # if it has only 1 vowel or 1 set of consecutive vowels, discard. (like "speed", "fled" etc.)
 
     if word[-2:] == "es" or word[-2:] == "ed":
         doubleAndtripple_1 = len(re.findall(r'[eaoui][eaoui]', word))
@@ -44,8 +40,6 @@ def count_syllables(word):
             else:
                 disc += 1
 
-    # 3) discard trailing "e", except where ending is "le"
-
     le_except = ['whole', 'mobile', 'pole', 'male', 'female', 'hale', 'pale', 'tale', 'sale', 'aisle', 'whale', 'while']
 
     if word[-1:] == "e":
@@ -55,24 +49,17 @@ def count_syllables(word):
         else:
             disc += 1
 
-    # 4) check if consecutive vowels exists, triplets or pairs, count them as one.
-
     doubleAndtripple = len(re.findall(r'[eaoui][eaoui]', word))
     tripple = len(re.findall(r'[eaoui][eaoui][eaoui]', word))
     disc += doubleAndtripple + tripple
 
-    # 5) count remaining vowels in word.
     numVowels = len(re.findall(r'[eaoui]', word))
 
-    # 6) add one if starts with "mc"
     if word[:2] == "mc":
         syls += 1
 
-    # 7) add one if ends with "y" but is not surrouned by vowel
     if word[-1:] == "y" and word[-2] not in "aeoui":
         syls += 1
-
-    # 8) add one if "y" is surrounded by non-vowels and is not in the last word.
 
     for i, j in enumerate(word):
         if j == "y":
@@ -80,24 +67,17 @@ def count_syllables(word):
                 if word[i - 1] not in "aeoui" and word[i + 1] not in "aeoui":
                     syls += 1
 
-    # 9) if starts with "tri-" or "bi-" and is followed by a vowel, add one.
-
     if word[:3] == "tri" and word[3] in "aeoui":
         syls += 1
 
     if word[:2] == "bi" and word[2] in "aeoui":
         syls += 1
 
-    # 10) if ends with "-ian", should be counted as two syllables, except for "-tian" and "-cian"
-
     if word[-3:] == "ian":
-        # and (word[-4:] != "cian" or word[-4:] != "tian") :
         if word[-4:] == "cian" or word[-4:] == "tian":
             pass
         else:
             syls += 1
-
-    # 11) if starts with "co-" and is followed by a vowel, check if exists in the double syllable dictionary, if not, check if in single dictionary and act accordingly.
 
     if word[:2] == "co" and word[2] in 'eaoui':
 
@@ -108,15 +88,11 @@ def count_syllables(word):
         else:
             syls += 1
 
-    # 12) if starts with "pre-" and is followed by a vowel, check if exists in the double syllable dictionary, if not, check if in single dictionary and act accordingly.
-
     if word[:3] == "pre" and word[3] in 'eaoui':
         if word[:6] in pre_one:
             pass
         else:
             syls += 1
-
-    # 13) check for "-n't" and cross match with dictionary to add syllable.
 
     negative = ["doesn't", "isn't", "shouldn't", "couldn't", "wouldn't"]
 
@@ -126,21 +102,19 @@ def count_syllables(word):
         else:
             pass
 
-            # 14) Handling the exceptional words.
-
     if word in exception_del:
         disc += 1
 
     if word in exception_add:
         syls += 1
 
-        # calculate the output
     return numVowels - disc + syls
 
 
 def flesch_kincaid_ease_score(number_of_sentences, number_of_words, number_of_syllables):
     """
-    Computes the Flesch-Kincaid ease of readability score for a given article
+    Compute the Flesch-Kincaid ease of readability score for a given article
+
     :param number_of_sentences:
     :param number_of_words:
     :param number_of_syllables:
@@ -153,13 +127,25 @@ def flesch_kincaid_ease_score(number_of_sentences, number_of_words, number_of_sy
 
 
 def remove_stop_words(sentence):
-    en_stop = get_stop_words('en')
+    """
+    Remove stop words from the sentence (a string) and returns the sentence as a (list of words)
+
+    :param sentence:
+    :return:
+    """
+    global en_stop
     tokens = sentence.replace("<s>", "").replace("</s>", "").strip().split()
     stopped_string = [i for i in tokens if not i in en_stop]
     return stopped_string
 
 
 def stem_tokens(tokens):
+    """
+    Stem the tokens (a list of strings) and returns a (list of stems)
+
+    :param tokens:
+    :return:
+    """
     stemmed = []
     for item in tokens:
         stemmed.append(PorterStemmer().stem(item))
@@ -167,6 +153,14 @@ def stem_tokens(tokens):
 
 
 def jaccard(a, b):
+    """
+    Compute the Jaccard Similarity between two sentences a and b.
+    a and b are (list of stems)
+
+    :param a:
+    :param b:
+    :return:
+    """
     a = set(a)
     b = set(b)
     c = a.intersection(b)

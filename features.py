@@ -4,7 +4,6 @@ from collections import Counter
 
 import numpy
 from sklearn.base import TransformerMixin
-from sklearn.metrics import jaccard_similarity_score
 
 import utils
 
