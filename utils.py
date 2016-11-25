@@ -1,5 +1,7 @@
 from __future__ import division
 import re
+from stop_words import get_stop_words
+from nltk.stem import PorterStemmer
 
 
 def count_syllables(word):
@@ -148,3 +150,24 @@ def flesch_kincaid_ease_score(number_of_sentences, number_of_words, number_of_sy
     score -= (1.015 * (number_of_words / number_of_sentences))
     score -= (84.6 * (number_of_syllables / number_of_words))
     return score
+
+
+def remove_stop_words(sentence):
+    en_stop = get_stop_words('en')
+    tokens = sentence.replace("<s>", "").replace("</s>", "").strip().split()
+    stopped_string = [i for i in tokens if not i in en_stop]
+    return stopped_string
+
+
+def stem_tokens(tokens):
+    stemmed = []
+    for item in tokens:
+        stemmed.append(PorterStemmer().stem(item))
+    return stemmed
+
+
+def jaccard(a, b):
+    a = set(a)
+    b = set(b)
+    c = a.intersection(b)
+    return len(c) / (len(a) + len(b) - len(c))
