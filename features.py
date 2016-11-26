@@ -2,11 +2,22 @@ from __future__ import division
 
 from collections import Counter
 
-import numpy
+import numpy as np
 from sklearn.base import TransformerMixin
 
 import utils
 
+"""
+Use this to inspect X,y transformed values
+"""
+class DummyEstimator:
+
+    def fit(self,X,y):
+        print X[:5]
+        return self
+
+    def predict(self,X):
+        return np.zeros(X.shape[0])
 
 class SentenceLengthMeanFeature(TransformerMixin):
     def fit(self, X, y=None, **fit_params):
@@ -23,9 +34,9 @@ class SentenceLengthMeanFeature(TransformerMixin):
             mean = total_length / len(X)
             means.append(mean)
 
-        return means
+        return np.array(means).reshape(len(means),1)
 
-
+#Bug in this feature
 class SentenceLengthModeFeature(TransformerMixin):
     def fit(self, X, y=None, **fit_params):
         return self
@@ -42,7 +53,7 @@ class SentenceLengthModeFeature(TransformerMixin):
             lengths.append(total_length)
             modes.append(Counter(lengths).most_common(1)[0][0])
 
-        return modes
+            return np.array(modes)
 
 
 class FleschKincaidReadabilityEaseFeature(TransformerMixin):
@@ -63,7 +74,7 @@ class FleschKincaidReadabilityEaseFeature(TransformerMixin):
             ease_scores.append(
                 utils.flesch_kincaid_ease_score(number_of_sentences, number_of_words, number_of_syllables)
             )
-        return ease_scores
+        return np.array(ease_scores).reshape(len(ease_scores),1)
 
 
 class JaccardSimilarityAverageFeature(TransformerMixin):
@@ -82,7 +93,7 @@ class JaccardSimilarityAverageFeature(TransformerMixin):
 
                 scores.append(utils.jaccard(stemmed_sentence1, stemmed_sentence2))
 
-            jaccard_scores.append(numpy.average(scores))
-        return jaccard_scores
+            jaccard_scores.append(np.average(scores))
+        return np.array(jaccard_scores).reshape(len(jaccard_scores),1)
 
 
