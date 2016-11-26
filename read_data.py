@@ -1,35 +1,50 @@
 import json
 import os
+from ConfigParser import SafeConfigParser
+
 import numpy as np
+
 
 def load_params():
     """
-    Load parameters from settings.json
-    :return:set of parameters loaded from settings.json
+    Load parameters from settings.ini
+
+    :return:set of parameters loaded from settings.ini
     """
-    json_data = open("settings.json")
-    params = json.load(json_data)
-    return params
+    parser = SafeConfigParser()
+    parser.read('settings.ini')
+    return parser
+
 
 def load_data(data_type):
-    """Function that loads data according to the data_type: train/test/cv"""
-    assert(data_type == "train" or data_type == "test" or data_type == "dev")
-    base_path = load_params()["data_src"]
+    """
+    Function that loads data according to the data_type: train/test/cv
+
+    :param data_type:
+    :return:
+    """
+    assert (data_type == "train" or data_type == "test" or data_type == "dev")
+    parser = load_params()
+    base_path = parser.get("data", "path")
+
     if data_type == "train":
-        TRAIN_DAT_FILE = os.path.join(base_path,"trainingSet.dat.txt")
-        TRAIN_LABELS_FILE = os.path.join(base_path,"trainingSetLabels.dat.txt")
+        TRAIN_DAT_FILE = os.path.join(base_path, parser.get("training", "data"))
+        TRAIN_LABELS_FILE = os.path.join(base_path, parser.get("training", "labels"))
         X = read_data(TRAIN_DAT_FILE)
         y = read_labels(TRAIN_LABELS_FILE)
-        return X,y
+        return X, y
+
     elif data_type == "dev":
-        DEV_DAT_FILE = os.path.join(base_path, "developmentSet.dat.txt")
-        DEV_LABELS_FILE = os.path.join(base_path, "developmentSetLabels.dat")
+        DEV_DAT_FILE = os.path.join(base_path, parser.get("development", "data"))
+        DEV_LABELS_FILE = os.path.join(base_path, parser.get("development", "labels"))
         X = read_data(DEV_DAT_FILE)
         y = read_labels(DEV_LABELS_FILE)
-        return X,y
+        return X, y
+
     else:
         # Need to decide about handling the testing data
         pass
+
 
 def read_data(filename):
     text = open(filename).read().split("~~~~~")
@@ -38,5 +53,5 @@ def read_data(filename):
 
 
 def read_labels(filename):
-    text = map(int,open(filename).read().splitlines())
+    text = map(int, open(filename).read().splitlines())
     return np.array(text)
