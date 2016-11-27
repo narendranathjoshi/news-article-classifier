@@ -100,3 +100,63 @@ class JaccardSimilarityAverageFeature(TransformerMixin):
 
             jaccard_scores.append(np.average(scores))
         return np.array(jaccard_scores).reshape(len(jaccard_scores), 1)
+
+
+class TypeTokenRatiosFeature(TransformerMixin):
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+    def transform(self, X, **transform_params):
+        type_token_ratios = [] 
+        for article in X:
+            text = []
+            for line in article:
+            words = line.split(' ')
+            for word in words:
+                text.append(word)
+            tt_ratio = len(set(text))/len(text)
+            type_token_ratios.append(tt_ratio)
+
+        return np.array(type_token_ratios).reshape(len(type_token_ratios),1)
+
+
+class BigramRepeatFeature(TransformerMixin):
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+    def transform(self, X, **transform_params):
+        
+        bigram_repeat = []
+        for article in X:
+            words = []
+            count = 0
+            for line in article:
+                text = line.split()
+                for t in text:
+                    words.append(t)
+            #print words
+            for i in range(1,len(words)):
+                denom = int(len(words)*2)
+                if '.' in words[i]:
+                    continue
+                if(words[i-1] == words[i]):
+                    #print words[i-1],words[i]
+                    count += 1
+            #print count
+            value = count/denom
+            bigram_repeat.append(value)
+
+        return np.array(bigram_repeat).reshape(len(bigram_repeat),1)
+
+
+
+
+
+
+
+
+
+      
+
