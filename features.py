@@ -4,15 +4,16 @@ from collections import Counter
 
 import numpy as np
 from sklearn.base import TransformerMixin
+from sklearn.preprocessing import normalize
 
 import utils
 
-"""
-Use this to inspect X,y transformed values
-"""
-
 
 class DummyEstimator:
+    """
+    Use this to inspect X,y transformed values
+    """
+
     def __init__(self):
         pass
 
@@ -25,6 +26,15 @@ class DummyEstimator:
 
 
 class SentenceLengthMeanFeature(TransformerMixin):
+    def __init__(self, **params):
+        self.params = params
+
+    def get_params(self, deep=True):
+        return self.params
+
+    def set_params(self, **params):
+        self.params.update(params)
+
     def fit(self, X, y=None, **fit_params):
         return self
 
@@ -39,10 +49,19 @@ class SentenceLengthMeanFeature(TransformerMixin):
             mean = total_length / len(X)
             means.append(mean)
 
-        return np.array(means).reshape(len(means), 1)
+        return normalize(np.array(means).reshape(len(means), 1))
 
 
 class SentenceLengthModeFeature(TransformerMixin):
+    def __init__(self, **params):
+        self.params = params
+
+    def get_params(self, deep=True):
+        return self.params
+
+    def set_params(self, **params):
+        self.params.update(params)
+
     def fit(self, X, y=None, **fit_params):
         return self
 
@@ -58,10 +77,19 @@ class SentenceLengthModeFeature(TransformerMixin):
             lengths.append(total_length)
             modes.append(Counter(lengths).most_common(1)[0][0])
 
-        return np.array(modes).reshape(len(modes), 1)
+        return normalize(np.array(modes).reshape(len(modes), 1))
 
 
 class FleschKincaidReadabilityEaseFeature(TransformerMixin):
+    def __init__(self, **params):
+        self.params = params
+
+    def get_params(self, deep=True):
+        return self.params
+
+    def set_params(self, **params):
+        self.params.update(params)
+
     def fit(self, X, y=None, **fit_params):
         return self
 
@@ -79,10 +107,19 @@ class FleschKincaidReadabilityEaseFeature(TransformerMixin):
             ease_scores.append(
                 utils.flesch_kincaid_ease_score(number_of_sentences, number_of_words, number_of_syllables)
             )
-        return np.array(ease_scores).reshape(len(ease_scores), 1)
+        return normalize(np.array(ease_scores).reshape(len(ease_scores), 1))
 
 
 class JaccardSimilarityAverageFeature(TransformerMixin):
+    def __init__(self, **params):
+        self.params = params
+
+    def get_params(self, deep=True):
+        return self.params
+
+    def set_params(self, **params):
+        self.params.update(params)
+
     def fit(self, X, y=None, **fit_params):
         return self
 
@@ -98,17 +135,29 @@ class JaccardSimilarityAverageFeature(TransformerMixin):
 
                 scores.append(utils.jaccard(stemmed_sentence1, stemmed_sentence2))
 
-            jaccard_scores.append(np.average(scores))
-        return np.array(jaccard_scores).reshape(len(jaccard_scores), 1)
+            if scores:
+                jaccard_scores.append(np.average(scores))
+            else:
+                jaccard_scores.append(0.1)
+
+        return normalize(np.array(jaccard_scores).reshape(len(jaccard_scores), 1))
 
 
 class TypeTokenRatiosFeature(TransformerMixin):
+    def __init__(self, **params):
+        self.params = params
+
+    def get_params(self, deep=True):
+        return self.params
+
+    def set_params(self, **params):
+        self.params.update(params)
 
     def fit(self, X, y=None, **fit_params):
         return self
 
     def transform(self, X, **transform_params):
-        type_token_ratios = [] 
+        type_token_ratios = []
         for article in X:
             text = []
 
@@ -117,19 +166,27 @@ class TypeTokenRatiosFeature(TransformerMixin):
                 for word in words:
                     text.append(word)
 
-            tt_ratio = len(set(text))/len(text)
+            tt_ratio = len(set(text)) / len(text)
             type_token_ratios.append(tt_ratio)
 
-        return np.array(type_token_ratios).reshape(len(type_token_ratios),1)
+        return np.array(type_token_ratios).reshape(len(type_token_ratios), 1)
 
 
 class BigramRepeatFeature(TransformerMixin):
+    def __init__(self, **params):
+        self.params = params
+
+    def get_params(self, deep=True):
+        return self.params
+
+    def set_params(self, **params):
+        self.params.update(params)
 
     def fit(self, X, y=None, **fit_params):
         return self
 
     def transform(self, X, **transform_params):
-        
+
         bigram_repeat = []
         for article in X:
             words = []
@@ -138,27 +195,16 @@ class BigramRepeatFeature(TransformerMixin):
                 text = line.split()
                 for t in text:
                     words.append(t)
-            #print words
-            for i in range(1,len(words)):
-                denom = int(len(words)*2)
+            # print words
+            for i in range(1, len(words)):
+                denom = int(len(words) * 2)
                 if '.' in words[i]:
                     continue
-                if(words[i-1] == words[i]):
-                    #print words[i-1],words[i]
+                if words[i - 1] == words[i]:
+                    # print words[i-1],words[i]
                     count += 1
-            #print count
-            value = count/denom
+            # print count
+            value = count / denom
             bigram_repeat.append(value)
 
-        return np.array(bigram_repeat).reshape(len(bigram_repeat),1)
-
-
-
-
-
-
-
-
-
-      
-
+        return np.array(bigram_repeat).reshape(len(bigram_repeat), 1)
