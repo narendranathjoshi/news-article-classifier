@@ -111,10 +111,12 @@ class TypeTokenRatiosFeature(TransformerMixin):
         type_token_ratios = [] 
         for article in X:
             text = []
+
             for line in article:
-            words = line.split(' ')
-            for word in words:
-                text.append(word)
+                words = line.split(' ')
+                for word in words:
+                    text.append(word)
+
             tt_ratio = len(set(text))/len(text)
             type_token_ratios.append(tt_ratio)
 
