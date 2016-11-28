@@ -45,14 +45,14 @@ if __name__ == '__main__':
 
     params = {
         "svm": {
-            'classifier__C': [1, 10, 100, 1000],
-            'classifier__gamma': [0.001, 0.0001]
+            'classifier__C': [1000, 2000],
+            'classifier__gamma': [0.001, 0.005]
         },
         "nn_mlp": {
-            "hidden_layer_sizes": (100, 100,),
-            "activation": 'logistic',
-            "alpha": 0.0001,
-            "max_iter": 1000
+            "classifier__hidden_layer_sizes": [(100,)],
+            "classifier__activation": ['logistic'],
+            "classifier__alpha": [0.0001, 0.001],
+            "classifier__max_iter": [1000]
         }
     }
 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         "nn_mlp": MLPClassifier(),
     }
 
-    CLASSIFIER = "svm"
+    CLASSIFIER = "nn_mlp"
 
     nac_pipeline = Pipeline([
         ('features', FeatureUnion([
