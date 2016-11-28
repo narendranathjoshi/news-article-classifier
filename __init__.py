@@ -42,11 +42,6 @@ if __name__ == '__main__':
     print "Importing data..."
     Xtrain, ytrain = load_data("train",kick_eos=True,kick_bos=True)
     Xdev, ydev = load_data("dev",kick_bos=True,kick_eos=True)
-    klm_3gram = KenLMPerplexity(ngram=3)
-    print Xtrain[:2]
-    print Xdev[:2]
-    print KenLMPerplexity(ngram=3).transform(Xdev)
-    exit()
     params = {
         "svm": {
             'classifier__C': [1000, 2000],
