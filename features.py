@@ -5,9 +5,10 @@ from collections import Counter
 import numpy as np
 from sklearn.base import TransformerMixin
 from sklearn.preprocessing import normalize
-
+from read_data import load_params
+import os
 import utils
-
+import kenlm
 
 class DummyEstimator:
     """
@@ -23,6 +24,28 @@ class DummyEstimator:
 
     def predict(self, X):
         return np.zeros(X.shape[0])
+
+class KenLMPerplexity:
+
+    def __init__(self,ngram):
+        path_to_model = os.path.join(load_params().get("data","path"),"models","LM_{}gram.klm".format(ngram))
+        self.lm = kenlm.Model(path_to_model)
+
+    def fit(self,X,y=None):
+        return self
+
+    def transform(self,X):
+        Xtf = np.zeros(len(X))
+        for i, article in enumerate(X):
+            for sentence in article:
+                Xtf[i] += (-self.lm.score(sentence,bos=False,eos=False))
+            Xtf[i] /= len(article)
+        return Xtf.reshape(Xtf.shape[0],1)
+
+
+
+
+
 
 
 class SentenceLengthMeanFeature(TransformerMixin):

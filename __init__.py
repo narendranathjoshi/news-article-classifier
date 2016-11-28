@@ -5,7 +5,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline, FeatureUnion
 from features import FleschKincaidReadabilityEaseFeature, SentenceLengthMeanFeature, \
     JaccardSimilarityAverageFeature, SentenceLengthModeFeature, DummyEstimator, TypeTokenRatiosFeature, \
-    BigramRepeatFeature
+    BigramRepeatFeature,KenLMPerplexity
 from read_data import load_data
 from sklearn.model_selection import KFold
 from sklearn.linear_model import LogisticRegression
@@ -40,9 +40,13 @@ def cross_validate(pipeline, data, cv=4):
 
 if __name__ == '__main__':
     print "Importing data..."
-    Xtrain, ytrain = load_data("train")
-    Xdev, ydev = load_data("dev")
-
+    Xtrain, ytrain = load_data("train",kick_eos=True,kick_bos=True)
+    Xdev, ydev = load_data("dev",kick_bos=True,kick_eos=True)
+    klm_3gram = KenLMPerplexity(ngram=3)
+    print Xtrain[:2]
+    print Xdev[:2]
+    print KenLMPerplexity(ngram=3).transform(Xdev)
+    exit()
     params = {
         "svm": {
             'classifier__C': [1, 10, 100, 1000],
