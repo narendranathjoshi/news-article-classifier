@@ -1,19 +1,18 @@
 from pprint import pprint
 from time import time
 
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline, FeatureUnion
-from features import FleschKincaidReadabilityEaseFeature, SentenceLengthMeanFeature, \
-    JaccardSimilarityAverageFeature, SentenceLengthModeFeature, DummyEstimator, TypeTokenRatiosFeature, \
-    BigramRepeatFeature,KenLMPerplexity
-from read_data import load_data
-from sklearn.model_selection import KFold
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.linear_model import SGDClassifier
-from sklearn.neural_network import MLPClassifier
 import numpy as np
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import KFold
+from sklearn.neural_network import MLPClassifier
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.svm import SVC
+
+from features import *
+from read_data import load_data
 
 
 def cross_validate(pipeline, data, cv=4):
@@ -48,10 +47,10 @@ if __name__ == '__main__':
             'classifier__gamma': [0.001, 0.005]
         },
         "nn_mlp": {
-            "classifier__hidden_layer_sizes": [(100,)],
-            "classifier__activation": ['logistic'],
-            "classifier__alpha": [0.0001, 0.001],
-            "classifier__max_iter": [1000]
+            "classifier__hidden_layer_sizes": [(100,), (100, 100,)],
+            "classifier__activation": ['tanh', 'logistic'],
+            "classifier__alpha": [0.001],
+            "classifier__max_iter": [5000, 8000, 10000]
         }
     }
 
@@ -67,6 +66,10 @@ if __name__ == '__main__':
     nac_pipeline = Pipeline([
         ('features', FeatureUnion([
             # ('sentence_length_mean', SentenceLengthMeanFeature()),
+            ('6gram_perplexity', KenLMPerplexity(ngram=6)),
+            ('5gram_perplexity', KenLMPerplexity(ngram=5)),
+            ('3gram_perplexity', KenLMPerplexity(ngram=3)),
+            ('4gram_perplexity', KenLMPerplexity(ngram=4)),
             ('sentence_length_mode', SentenceLengthModeFeature()),
             ('flesch_kincaid_score', FleschKincaidReadabilityEaseFeature()),
             ('jaccard_similarity', JaccardSimilarityAverageFeature()),

@@ -90,3 +90,5 @@ ENV/
 *.dat
 *.gz
 .idea
+submission/kenlm
+submission/models
