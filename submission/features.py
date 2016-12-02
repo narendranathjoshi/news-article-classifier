@@ -12,22 +12,6 @@ import utils
 import kenlm
 
 
-class DummyEstimator:
-    """
-    Use this to inspect X,y transformed values
-    """
-
-    def __init__(self):
-        pass
-
-    def fit(self, X, y):
-        print X[:5]
-        return self
-
-    def predict(self, X):
-        return np.zeros(X.shape[0])
-
-
 class KenLMPerplexity:
     def __init__(self, ngram):
         path_to_model = os.path.join(load_params().get("data", "path"), "models", "LM_{}gram.klm".format(ngram))
